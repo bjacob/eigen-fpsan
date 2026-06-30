@@ -1,0 +1,14 @@
+# Copyright (c) 2026 Advanced Micro Devices, Inc.
+# SPDX-License-Identifier: MIT
+#
+/.cache/
+/build/
+/cmake-build-*/
+/CMakeCache.txt
+/CMakeFiles/
+/cmake_install.cmake
+/compile_commands.json
+/CTestTestfile.cmake
+/DartConfiguration.tcl
+/Testing/
+/eigen_fpsan_*_demo

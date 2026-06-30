@@ -1,0 +1,6 @@
+[submodule "third_party/hip-fpsan"]
+	path = third_party/hip-fpsan
+	url = https://github.com/ROCm/hip-fpsan.git
+[submodule "third_party/eigen"]
+	path = third_party/eigen
+	url = https://gitlab.com/libeigen/eigen.git
