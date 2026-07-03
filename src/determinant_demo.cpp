@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: MIT
 //
 // Determinant demo: Semantics::Native exposes order-sensitive rounding while
-// Semantics::Field proves the determinant computations are algebraically
-// equivalent.
+// Semantics::Field tests determinant computations through several decompositions.
 //
 #include "demo_utils.hpp"
 
@@ -47,17 +46,29 @@ template <fpsan::Semantics S> void print_results() {
 
   const auto a = determinant_matrix<Scalar>();
 
-  std::cout << "\n" << eigen_fpsan::demo::section_name<S>() << "\n";
+  eigen_fpsan::demo::print_section_header<S>("  Triton preserves +, -, * in the direct rows; "
+                                             "decompositions add /, roots, and comparisons.",
+                                             "  QR determinant fingerprints can differ when a "
+                                             "norm/root path sees a value that is not a "
+                                             "quadratic residue in the finite field.");
   eigen_fpsan::demo::print_scalar("direct Leibniz expansion", leibniz_determinant(a));
   eigen_fpsan::demo::print_scalar("Eigen fixed-size determinant", a.determinant());
   eigen_fpsan::demo::print_scalar("PartialPivLU determinant", a.partialPivLu().determinant());
   eigen_fpsan::demo::print_scalar("FullPivLU determinant", a.fullPivLu().determinant());
+  eigen_fpsan::demo::print_scalar("HouseholderQR determinant", a.householderQr().determinant());
+  eigen_fpsan::demo::print_scalar("ColPivHouseholderQR determinant",
+                                  a.colPivHouseholderQr().determinant());
+  eigen_fpsan::demo::print_scalar("FullPivHouseholderQR determinant",
+                                  a.fullPivHouseholderQr().determinant());
+  eigen_fpsan::demo::print_scalar("CompleteOrthogonalDecomposition determinant",
+                                  a.completeOrthogonalDecomposition().determinant());
 }
 
 } // namespace
 
 int main() {
   print_results<fpsan::Semantics::Native>();
+  print_results<fpsan::Semantics::Triton>();
   print_results<fpsan::Semantics::Field>();
   return 0;
 }

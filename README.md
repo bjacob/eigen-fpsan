@@ -3,11 +3,11 @@
 Tiny C++ demos combining Eigen custom scalar support with `hip-fpsan`'s
 `fpsan::Value<float, ...>` wrapper.
 
-The demos run the same Eigen code with `Semantics::Native` first and algebraic
-FPSan `Semantics::Field` second. Native results are printed as ordinary floats;
-Field results are printed as full FPSan payloads. QR is limited to
-non-iterative Householder-based Eigen algorithms; SVD, eigenvalues, and other
-iterative methods are intentionally left out.
+The demos run the same Eigen code with `Semantics::Native`, `Semantics::Triton`,
+and algebraic FPSan `Semantics::Field`, in that order. Native results are
+printed as ordinary floats; Triton and Field results are printed as full FPSan
+payloads. QR is limited to non-iterative Householder-based Eigen algorithms;
+SVD, eigenvalues, and other iterative methods are intentionally left out.
 
 ## Build
 

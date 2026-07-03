@@ -12,14 +12,8 @@
 
 #include <cmath>
 #include <limits>
-#include <type_traits>
 
 namespace fpsan {
-
-template <class FT, Semantics S, Conversions C> constexpr Value<FT, S, C> abs(Value<FT, S, C> x) {
-  using V = Value<FT, S, C>;
-  return x < V(FT(0)) ? -x : x;
-}
 
 template <class FT, Semantics S, Conversions C> constexpr Value<FT, S, C> real(Value<FT, S, C> x) {
   return x;
@@ -89,6 +83,7 @@ struct NumTraits<fpsan::Value<FT, S, C>> : GenericNumTraits<fpsan::Value<FT, S, 
 
   static constexpr Real epsilon() { return Real(FT(0)); }
   static constexpr Real dummy_precision() { return Real(FT(0)); }
+  static constexpr Real min() { return Real(FT(0)); }
   static constexpr Real highest() { return (std::numeric_limits<Scalar>::max)(); }
   static constexpr Real lowest() { return (std::numeric_limits<Scalar>::lowest)(); }
   static constexpr Real infinity() { return std::numeric_limits<Scalar>::infinity(); }
@@ -98,29 +93,6 @@ struct NumTraits<fpsan::Value<FT, S, C>> : GenericNumTraits<fpsan::Value<FT, S, 
   static constexpr int max_digits10() { return std::numeric_limits<FT>::max_digits10; }
 };
 
-namespace internal {
-
-template <class FT, fpsan::Semantics S, fpsan::Conversions C>
-struct scalar_score_coeff_op<fpsan::Value<FT, S, C>> {
-  using Scalar = fpsan::Value<FT, S, C>;
-  using result_type = std::conditional_t<Scalar::is_fpsan, typename Scalar::bits_type, FT>;
-
-  EIGEN_DEVICE_FUNC constexpr result_type operator()(const Scalar &x) const {
-    if constexpr (Scalar::is_fpsan) {
-      return x.fpsan_payload();
-    } else {
-      using std::abs;
-      return abs(x.to_float());
-    }
-  }
-};
-
-template <class FT, fpsan::Semantics S, fpsan::Conversions C>
-struct functor_traits<scalar_score_coeff_op<fpsan::Value<FT, S, C>>> {
-  enum { Cost = 1, PacketAccess = false };
-};
-
-} // namespace internal
 } // namespace Eigen
 
 #endif // EIGEN_FPSAN_EIGEN_FPSAN_HPP

@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: MIT
 //
 // Least-squares demo: Semantics::Native changes under global scaling, while
-// Semantics::Field proves the HouseholderQR least-squares solution is
-// scale-invariant.
+// Semantics::Field proves non-iterative least-squares solutions are
+// scale-invariant when the control flow remains meaningful.
 //
 #include "demo_utils.hpp"
 
@@ -39,16 +39,30 @@ template <fpsan::Semantics S> void print_results() {
 
   const Vector3 qr = a.householderQr().solve(b);
   const Vector3 qr_scaled = (scale * a).householderQr().solve(scale * b);
+  const Vector3 col_piv_qr = a.colPivHouseholderQr().solve(b);
+  const Vector3 col_piv_qr_scaled = (scale * a).colPivHouseholderQr().solve(scale * b);
+  const Vector3 full_piv_qr = a.fullPivHouseholderQr().solve(b);
+  const Vector3 full_piv_qr_scaled = (scale * a).fullPivHouseholderQr().solve(scale * b);
+  const Vector3 cod = a.completeOrthogonalDecomposition().solve(b);
+  const Vector3 cod_scaled = (scale * a).completeOrthogonalDecomposition().solve(scale * b);
 
-  std::cout << "\n" << eigen_fpsan::demo::section_name<S>() << "\n";
+  eigen_fpsan::demo::print_section_header<S>("  QR/COD use division/root steps and rank/pivot "
+                                             "comparisons; Triton keeps those partly opaque.");
   eigen_fpsan::demo::print_vector("HouseholderQR(A, b)", qr);
   eigen_fpsan::demo::print_vector("HouseholderQR(scale A, scale b)", qr_scaled);
+  eigen_fpsan::demo::print_vector("ColPivHouseholderQR(A, b)", col_piv_qr);
+  eigen_fpsan::demo::print_vector("ColPivHouseholderQR(scale A, scale b)", col_piv_qr_scaled);
+  eigen_fpsan::demo::print_vector("FullPivHouseholderQR(A, b)", full_piv_qr);
+  eigen_fpsan::demo::print_vector("FullPivHouseholderQR(scale A, scale b)", full_piv_qr_scaled);
+  eigen_fpsan::demo::print_vector("CompleteOrthogonalDecomposition(A, b)", cod);
+  eigen_fpsan::demo::print_vector("CompleteOrthogonalDecomposition(scale A, scale b)", cod_scaled);
 }
 
 } // namespace
 
 int main() {
   print_results<fpsan::Semantics::Native>();
+  print_results<fpsan::Semantics::Triton>();
   print_results<fpsan::Semantics::Field>();
   return 0;
 }

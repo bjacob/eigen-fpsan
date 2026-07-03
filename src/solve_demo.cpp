@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: MIT
 //
 // Exact solve demo: Semantics::Native changes under mathematically neutral
-// scaling, while Semantics::Field proves the linear solves are algebraically
-// equivalent.
+// scaling, while Semantics::Field proves the LU solves and the Householder QR
+// family solves are each scale-invariant. Householder's root/sign choices remain
+// separate algebraic paths.
 //
 #include "demo_utils.hpp"
 
@@ -42,20 +43,30 @@ template <fpsan::Semantics S> void print_results() {
   const Vector4 full_scaled = (scale * a).fullPivLu().solve(scale * b);
   const Vector4 qr = a.householderQr().solve(b);
   const Vector4 qr_scaled = (scale * a).householderQr().solve(scale * b);
+  const Vector4 col_piv_qr = a.colPivHouseholderQr().solve(b);
+  const Vector4 col_piv_qr_scaled = (scale * a).colPivHouseholderQr().solve(scale * b);
+  const Vector4 full_piv_qr = a.fullPivHouseholderQr().solve(b);
+  const Vector4 full_piv_qr_scaled = (scale * a).fullPivHouseholderQr().solve(scale * b);
 
-  std::cout << "\n" << eigen_fpsan::demo::section_name<S>() << "\n";
+  eigen_fpsan::demo::print_section_header<S>("  These solves divide and pivot; Triton has limited "
+                                             "division and order semantics, so rows split.");
   eigen_fpsan::demo::print_vector("PartialPivLU(A, b)", partial);
   eigen_fpsan::demo::print_vector("PartialPivLU(scale A, scale b)", partial_scaled);
   eigen_fpsan::demo::print_vector("FullPivLU(A, b)", full);
   eigen_fpsan::demo::print_vector("FullPivLU(scale A, scale b)", full_scaled);
   eigen_fpsan::demo::print_vector("HouseholderQR(A, b)", qr);
   eigen_fpsan::demo::print_vector("HouseholderQR(scale A, scale b)", qr_scaled);
+  eigen_fpsan::demo::print_vector("ColPivHouseholderQR(A, b)", col_piv_qr);
+  eigen_fpsan::demo::print_vector("ColPivHouseholderQR(scale A, scale b)", col_piv_qr_scaled);
+  eigen_fpsan::demo::print_vector("FullPivHouseholderQR(A, b)", full_piv_qr);
+  eigen_fpsan::demo::print_vector("FullPivHouseholderQR(scale A, scale b)", full_piv_qr_scaled);
 }
 
 } // namespace
 
 int main() {
   print_results<fpsan::Semantics::Native>();
+  print_results<fpsan::Semantics::Triton>();
   print_results<fpsan::Semantics::Field>();
   return 0;
 }

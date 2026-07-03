@@ -23,9 +23,35 @@ using FpsanFloat = fpsan::Value<float, S, fpsan::Conversions::Explicit>;
 template <fpsan::Semantics S> const char *section_name() {
   if constexpr (S == fpsan::Semantics::Native) {
     return "Semantics::Native values";
+  } else if constexpr (S == fpsan::Semantics::Triton) {
+    return "Semantics::Triton payloads";
   } else {
     return "Semantics::Field payloads";
   }
+}
+
+template <fpsan::Semantics S>
+const char *section_comment(const char *triton_comment = nullptr,
+                            const char *field_comment = nullptr) {
+  if constexpr (S == fpsan::Semantics::Native) {
+    return "  Rounding is path-dependent, so equivalent formulas can differ.";
+  } else if constexpr (S == fpsan::Semantics::Triton) {
+    return triton_comment != nullptr ? triton_comment
+                                     : "  Triton preserves +, -, * payload algebra; division/root "
+                                       "laws and order comparisons are conditional.";
+  } else {
+    return field_comment != nullptr ? field_comment
+                                    : "  Dyadic +, -, *, and / are exact; order treats finite "
+                                      "nonzero quadratic residues as positive.";
+  }
+}
+
+template <fpsan::Semantics S>
+void print_section_header(const char *triton_comment = nullptr,
+                          const char *field_comment = nullptr) {
+  std::cout << "\n"
+            << section_name<S>() << "\n"
+            << section_comment<S>(triton_comment, field_comment) << "\n";
 }
 
 template <class Scalar> void print_value(const Scalar &value) {
@@ -39,14 +65,14 @@ template <class Scalar> void print_value(const Scalar &value) {
 }
 
 template <class Scalar> void print_scalar(const char *label, const Scalar &value) {
-  std::cout << "  " << std::left << std::setw(42) << label << std::right;
+  std::cout << "  " << std::left << std::setw(54) << label << std::right;
   print_value(value);
   std::cout << "\n";
 }
 
 template <class Derived>
 void print_vector(const char *label, const Eigen::MatrixBase<Derived> &value) {
-  std::cout << "  " << std::left << std::setw(42) << label << std::right;
+  std::cout << "  " << std::left << std::setw(54) << label << std::right;
   for (Eigen::Index i = 0; i < value.size(); ++i) {
     std::cout << " ";
     print_value(value(i));
