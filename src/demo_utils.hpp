@@ -25,8 +25,14 @@ template <fpsan::Semantics S> const char *section_name() {
     return "Semantics::Native values";
   } else if constexpr (S == fpsan::Semantics::Triton) {
     return "Semantics::Triton payloads";
-  } else {
+  } else if constexpr (S == fpsan::Semantics::Field) {
     return "Semantics::Field payloads";
+  } else if constexpr (S == fpsan::Semantics::SophieGermainRing) {
+    return "Semantics::SophieGermainRing payloads";
+  } else if constexpr (S == fpsan::Semantics::PythagoreanRing) {
+    return "Semantics::PythagoreanRing payloads";
+  } else {
+    return "Semantics::Algebraic payloads";
   }
 }
 
@@ -39,10 +45,18 @@ const char *section_comment(const char *triton_comment = nullptr,
     return triton_comment != nullptr ? triton_comment
                                      : "  Triton preserves +, -, * payload algebra; division/root "
                                        "laws and order comparisons are conditional.";
-  } else {
+  } else if constexpr (S == fpsan::Semantics::Field) {
     return field_comment != nullptr ? field_comment
                                     : "  Dyadic +, -, *, and / are exact; order treats finite "
                                       "nonzero quadratic residues as positive.";
+  } else if constexpr (S == fpsan::Semantics::SophieGermainRing) {
+    return "  Composite ring: dyadic +, -, *, and unit / are exact; qr-order uses the "
+           "safe-prime CRT factor.";
+  } else if constexpr (S == fpsan::Semantics::PythagoreanRing) {
+    return "  Composite ring: dyadic +, -, *, and unit / are exact; qr-order uses the "
+           "Pythagorean d CRT factor.";
+  } else {
+    return "  Algebraic payloads preserve exact ring identities for the selected semantics.";
   }
 }
 

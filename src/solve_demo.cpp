@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: MIT
 //
 // Exact solve demo: Semantics::Native changes under mathematically neutral
-// scaling, while Semantics::Field proves the LU solves and the Householder QR
-// family solves are each scale-invariant. Householder's root/sign choices remain
-// separate algebraic paths.
+// scaling, while algebraic FPSan semantics test whether the LU solves and the
+// Householder QR family solves are each scale-invariant. Householder's root/sign
+// choices remain separate algebraic paths.
 //
 #include "demo_utils.hpp"
 
@@ -68,5 +68,7 @@ int main() {
   print_results<fpsan::Semantics::Native>();
   print_results<fpsan::Semantics::Triton>();
   print_results<fpsan::Semantics::Field>();
+  print_results<fpsan::Semantics::SophieGermainRing>();
+  print_results<fpsan::Semantics::PythagoreanRing>();
   return 0;
 }

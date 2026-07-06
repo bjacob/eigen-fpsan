@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: MIT
 //
 // Determinant demo: Semantics::Native exposes order-sensitive rounding while
-// Semantics::Field tests determinant computations through several decompositions.
+// algebraic FPSan semantics test determinant computations through several
+// decompositions.
 //
 #include "demo_utils.hpp"
 
@@ -70,5 +71,7 @@ int main() {
   print_results<fpsan::Semantics::Native>();
   print_results<fpsan::Semantics::Triton>();
   print_results<fpsan::Semantics::Field>();
+  print_results<fpsan::Semantics::SophieGermainRing>();
+  print_results<fpsan::Semantics::PythagoreanRing>();
   return 0;
 }

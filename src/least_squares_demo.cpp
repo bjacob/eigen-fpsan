@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: MIT
 //
 // Least-squares demo: Semantics::Native changes under global scaling, while
-// Semantics::Field proves non-iterative least-squares solutions are
-// scale-invariant when the control flow remains meaningful.
+// algebraic FPSan semantics test whether non-iterative least-squares solutions
+// are scale-invariant when the control flow remains meaningful.
 //
 #include "demo_utils.hpp"
 
@@ -64,5 +64,7 @@ int main() {
   print_results<fpsan::Semantics::Native>();
   print_results<fpsan::Semantics::Triton>();
   print_results<fpsan::Semantics::Field>();
+  print_results<fpsan::Semantics::SophieGermainRing>();
+  print_results<fpsan::Semantics::PythagoreanRing>();
   return 0;
 }
